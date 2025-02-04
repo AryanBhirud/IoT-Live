@@ -1,14 +1,85 @@
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
+const fs = require('fs');
+
+function createWindow() {
+  const win = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  });
+
+  // Create application menu
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Open Project',
+          accelerator: 'CmdOrCtrl+O',
+          click: async () => {
+            const { filePaths } = await dialog.showOpenDialog({
+              properties: ['openFile'],
+              filters: [{ name: 'JSON Files', extensions: ['json'] }]
+            });
+            
+            if (filePaths.length > 0) {
+              const data = fs.readFileSync(filePaths[0], 'utf-8');
+              win.webContents.send('project-loaded', JSON.parse(data));
+            }
+          }
+        },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+
+  win.loadFile('index.html');
+}
+
+app.whenReady().then(createWindow);
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+});
+
+// Update the JavaScript code in app.js
+
 let devices = [];
 
 function addDevice() {
+    const now = new Date();
+    
     const device = {
         id: document.getElementById('deviceId').value,
         name: document.getElementById('deviceName').value,
         type: document.getElementById('deviceType').value,
-        status: 'online',
-        firmware: '1.0.0',
-        lastSeen: new Date().toLocaleString()
+        location: document.getElementById('deviceLocation').value,
+        ipAddress: document.getElementById('deviceIp').value,
+        status: document.getElementById('deviceStatus').value,
+        lastPing: now.toISOString(),
+        lastSeen: now.toLocaleString(),
+        firmware: '1.0.0'
     };
+
+    // Basic validation
+    if (!device.id || !device.name || !device.ipAddress || !device.location) {
+        alert('Please fill in all required fields');
+        return;
+    }
+
+    // IP address validation
+    const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+    if (!ipRegex.test(device.ipAddress)) {
+        alert('Please enter a valid IP address');
+        return;
+    }
 
     devices.push(device);
     updateVisualization();
@@ -20,7 +91,11 @@ function addDevice() {
 function clearDeviceForm() {
     document.getElementById('deviceId').value = '';
     document.getElementById('deviceName').value = '';
-    document.getElementById('deviceType').value = 'sensor';
+    document.getElementById('deviceType').value = 'node';
+    document.getElementById('deviceLocation').value = '';
+    document.getElementById('deviceIp').value = '';
+    document.getElementById('deviceStatus').value = 'online';
+    document.getElementById('lastPingDisplay').textContent = 'Never';
 }
 
 function updateVisualization() {
@@ -38,15 +113,21 @@ function updateVisualization() {
         clusterCard.className = 'cluster-card';
         clusterCard.innerHTML = `
             <div class="cluster-header">
-                <i class="fas fa-project-diagram"></i> ${type.toUpperCase()} CLUSTER
+                <i class="fas fa-${getDeviceIcon(type)}"></i> ${type.toUpperCase()} CLUSTER
             </div>
             ${devices.map(device => `
                 <div class="device-node">
                     <i class="fas fa-${getDeviceIcon(type)}"></i>
-                    <div>
+                    <div class="device-node-details">
                         <div>${device.name}</div>
-                        <small>${device.id}</small>
+                        <small>ID: ${device.id}</small>
+                        <small>IP: ${device.ipAddress}</small>
+                        <small>Location: ${device.location}</small>
+                        <small>Last Ping: ${new Date(device.lastPing).toLocaleString()}</small>
                     </div>
+                    <span class="device-status status-${device.status.toLowerCase()}">
+                        ${device.status}
+                    </span>
                 </div>
             `).join('')}
         `;
@@ -56,46 +137,70 @@ function updateVisualization() {
 
 function getDeviceIcon(type) {
     const icons = {
+        node: 'microchip',
+        hub: 'network-wired',
+        gateway: 'server',
         sensor: 'thermometer-half',
-        actuator: 'bolt',
-        gateway: 'server'
+        actuator: 'bolt'
     };
     return icons[type] || 'microchip';
 }
 
 function updateClusterList() {
     const clusterContainer = document.getElementById('clusterContainer');
-    const clusterCount = Object.keys(groupDevicesIntoClusters()).length;
-    clusterContainer.innerHTML = `
-        <div class="cluster-item">
-            <i class="fas fa-cluster"></i>
-            ${clusterCount} Active Clusters
-        </div>
-    `;
+    const clusters = groupDevicesIntoClusters();
+    
+    clusterContainer.innerHTML = Object.entries(clusters)
+        .map(([type, cluster]) => `
+            <div class="cluster-item">
+                <i class="fas fa-${getDeviceIcon(type)}"></i>
+                ${type.toUpperCase()}: ${cluster.devices.length} devices
+            </div>
+        `).join('');
 }
 
 function updateAnalytics() {
     document.getElementById('connectedCount').textContent = devices.length;
     document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
     
-    const typeCounts = devices.reduce((acc, d) => {
-        acc[d.type] = (acc[d.type] || 0) + 1;
-        return acc;
-    }, {});
+    const deviceStats = countDeviceTypes();
+    const statusStats = countDeviceStatuses();
     
     document.getElementById('deviceStats').innerHTML = `
         <div>Total Devices: ${devices.length}</div>
-        ${Object.entries(typeCounts).map(([type, count]) => `
+        ${Object.entries(deviceStats).map(([type, count]) => `
             <div>${type.charAt(0).toUpperCase() + type.slice(1)}s: ${count}</div>
         `).join('')}
     `;
+
+    document.getElementById('systemHealth').innerHTML = `
+        ${Object.entries(statusStats).map(([status, count]) => `
+            <div>${status.charAt(0).toUpperCase() + status.slice(1)}: ${count}</div>
+        `).join('')}
+    `;
+}
+
+function countDeviceTypes() {
+    return devices.reduce((acc, device) => {
+        acc[device.type] = (acc[device.type] || 0) + 1;
+        return acc;
+    }, {});
+}
+
+function countDeviceStatuses() {
+    return devices.reduce((acc, device) => {
+        acc[device.status] = (acc[device.status] || 0) + 1;
+        return acc;
+    }, {});
 }
 
 document.getElementById('exportJson').addEventListener('click', () => {
     const data = {
         timestamp: new Date().toISOString(),
         clusters: groupDevicesIntoClusters(),
-        totalDevices: devices.length
+        totalDevices: devices.length,
+        deviceTypes: countDeviceTypes(),
+        statusSummary: countDeviceStatuses()
     };
 
     const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
@@ -104,12 +209,6 @@ document.getElementById('exportJson').addEventListener('click', () => {
     a.href = url;
     a.download = `iot_config_${new Date().toISOString()}.json`;
     a.click();
-});
-
-document.getElementById('deployBtn').addEventListener('click', () => {
-    const clusters = groupDevicesIntoClusters();
-    // Add actual deployment logic here
-    updateDeploymentStatus('Deployment initiated...');
 });
 
 function groupDevicesIntoClusters() {
@@ -124,23 +223,20 @@ function groupDevicesIntoClusters() {
         acc[device.type].devices.push({
             id: device.id,
             name: device.name,
-            status: device.status
+            status: device.status,
+            location: device.location,
+            ipAddress: device.ipAddress,
+            lastPing: device.lastPing
         });
         return acc;
     }, {});
 }
 
-function updateDeploymentStatus(message) {
-    const progress = document.getElementById('deploymentProgress');
-    progress.innerHTML = `<div class="status-message">${message}</div>`;
-}
-
-function connectGithub() {
-    const repoUrl = document.getElementById('githubRepo').value;
-    if (!repoUrl) return;
-    
-    document.getElementById('githubStatus').textContent = `Connected to ${repoUrl}`;
-}
-
-// Initial setup
-updateAnalytics();
+document.getElementById('deployBtn').addEventListener('click', () => {
+    const clusters = groupDevicesIntoClusters();
+    document.getElementById('deploymentProgress').innerHTML = `
+        <div class="status-message">
+            Configuration ready for deployment to ${devices.length} devices
+        </div>
+    `;
+});

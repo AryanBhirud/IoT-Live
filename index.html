@@ -24,13 +24,30 @@
                 <div class="device-configuration">
                     <div class="sidebar-title">DEVICE MANAGEMENT</div>
                     <div class="device-form">
-                        <input type="text" id="deviceId" placeholder="Device ID">
-                        <input type="text" id="deviceName" placeholder="Device Name">
-                        <select id="deviceType">
+                        <input type="text" id="deviceId" placeholder="Device ID" required>
+                        <input type="text" id="deviceName" placeholder="Device Name" required>
+                        <select id="deviceType" required>
+                            <option value="node">Node</option>
+                            <option value="hub">Hub</option>
+                            <option value="gateway">Gateway</option>
                             <option value="sensor">Sensor</option>
                             <option value="actuator">Actuator</option>
-                            <option value="gateway">Gateway</option>
                         </select>
+                        <input type="text" id="deviceLocation" placeholder="Location" required>
+                        <input type="text" id="deviceIp" placeholder="IP Address" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$" required>
+                        <div class="status-field">
+                            <label for="deviceStatus">Status:</label>
+                            <select id="deviceStatus" required>
+                                <option value="online">Online</option>
+                                <option value="offline">Offline</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="error">Error</option>
+                            </select>
+                        </div>
+                        <div class="last-ping-field" title="Last successful connection">
+                            <span>Last Ping: </span>
+                            <span id="lastPingDisplay">Never</span>
+                        </div>
                         <button onclick="addDevice()" class="add-device-btn">
                             <i class="fas fa-plus"></i> Add Device
                         </button>
