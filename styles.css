@@ -29,7 +29,13 @@ body {
     border-bottom: 1px solid #444;
 }
 
-.top-bar button {
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.export-btn, .deploy-btn {
     border: none;
     color: white;
     padding: 8px 15px;
@@ -44,7 +50,6 @@ body {
 
 .export-btn {
     background-color: #007acc;
-    margin-right: 10px;
 }
 
 .deploy-btn {
@@ -66,6 +71,12 @@ body {
     border-right: 1px solid #333;
 }
 
+.device-configuration {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
 .sidebar-title {
     padding: 15px;
     font-size: 12px;
@@ -82,8 +93,7 @@ body {
 }
 
 .device-form input, 
-.device-form select,
-.github-input {
+.device-form select {
     padding: 8px 12px;
     background: #333;
     border: 1px solid #444;
@@ -93,8 +103,7 @@ body {
 }
 
 .device-form input:focus, 
-.device-form select:focus,
-.github-input:focus {
+.device-form select:focus {
     outline: none;
     border-color: #007acc;
 }
@@ -118,6 +127,61 @@ body {
     background-color: #1f8ad2;
 }
 
+.github-wrapper {
+    margin-top: auto;
+    border-top: 1px solid #333;
+}
+
+.github-section {
+    padding: 15px;
+    background-color: #252526;
+}
+
+.github-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.github-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.github-input {
+    flex: 1;
+    padding: 8px 12px;
+    background: #333;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.github-input:focus {
+    outline: none;
+    border-color: #007acc;
+}
+
+.github-connect-btn {
+    background-color: #2b3137;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.github-connect-btn:hover {
+    background-color: #373e44;
+}
+
 .editor-area {
     flex: 1;
     display: flex;
@@ -135,13 +199,17 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
+    grid-auto-rows: min-content;
 }
+
 
 .cluster-card {
     background: #252526;
     border: 1px solid #333;
     border-radius: 6px;
     overflow: hidden;
+    height: min-content;
+    align-self: start;
 }
 
 .cluster-header {
@@ -205,16 +273,9 @@ body {
     color: #007acc;
 }
 
-.github-section {
-    padding: 15px;
-    border-top: 1px solid #333;
-    margin-top: auto;
-}
-
 .status-message {
-    margin-top: 10px;
-    font-size: 13px;
     color: #888;
+    font-size: 13px;
 }
 
 .status-bar {

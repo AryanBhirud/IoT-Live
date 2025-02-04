@@ -10,12 +10,14 @@
     <div class="container">
         <div class="top-bar">
             <span>IoT Deployment Manager</span>
-            <button id="exportJson" class="export-btn">
-                <i class="fas fa-download"></i> Export
-            </button>
-            <button id="deployBtn" class="deploy-btn">
-                <i class="fas fa-rocket"></i> Deploy
-            </button>
+            <div class="action-buttons">
+                <button id="exportJson" class="export-btn">
+                    <i class="fas fa-download"></i> Export
+                </button>
+                <button id="deployBtn" class="deploy-btn">
+                    <i class="fas fa-rocket"></i> Deploy
+                </button>
+            </div>
         </div>
         <div class="main-content">
             <div class="sidebar">
@@ -38,13 +40,19 @@
                         <div id="clusterContainer"></div>
                     </div>
                 </div>
-                <div class="github-section">
+                <div class="github-wrapper">
                     <div class="sidebar-title">GITHUB INTEGRATION</div>
-                    <input type="text" id="githubRepo" class="github-input" placeholder="Repository URL">
-                    <button onclick="connectGithub()" class="add-device-btn">
-                        <i class="fab fa-github"></i> Connect
-                    </button>
-                    <div id="githubStatus" class="status-message"></div>
+                    <div class="github-section">
+                        <div class="github-form">
+                            <div class="github-input-group">
+                                <input type="text" id="githubRepo" class="github-input" placeholder="Repository URL">
+                                <button onclick="connectGithub()" class="github-connect-btn">
+                                    <i class="fab fa-github"></i> Connect
+                                </button>
+                            </div>
+                            <div id="githubStatus" class="status-message"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="editor-area">
