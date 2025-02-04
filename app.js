@@ -189,12 +189,8 @@ document.getElementById('exportJson').addEventListener('click', () => {
 
 // Deploy button handler
 document.getElementById('deployBtn').addEventListener('click', () => {
-    const clusters = groupDevicesIntoClusters();
-    document.getElementById('deploymentProgress').innerHTML = `
-        <div class="status-message">
-            Configuration ready for deployment to ${devices.length} devices
-        </div>
-    `;
+    const taskGroups = groupDevicesByTask();
+    ipcRenderer.send('deploy-firmware', taskGroups);
 });
 
 // Cluster type change handler
@@ -217,4 +213,18 @@ function getClusterLabel(clusterType) {
         location: 'LOCATION',
         task: 'TASK'
     }[clusterType];
+}
+
+function groupDevicesByTask() {
+    return devices.reduce((acc, device) => {
+        const key = device.task;
+        if (!acc[key]) {
+            acc[key] = {
+                task: key,
+                devices: []
+            };
+        }
+        acc[key].devices.push(device);
+        return acc;
+    }, {});
 }
