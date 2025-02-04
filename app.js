@@ -9,13 +9,14 @@ function addDevice() {
         type: document.getElementById('deviceType').value,
         location: document.getElementById('deviceLocation').value,
         ipAddress: document.getElementById('deviceIp').value,
-        status: 'unknown',     // Initial status is unknown until real data is received
-        lastPing: null,        // Will be updated by actual device communication
-        lastSeen: null         // Will be updated by actual device communication
+        task: document.getElementById('deviceTask').value, // New task field
+        status: 'unknown',
+        lastPing: null,
+        lastSeen: null
     };
 
     // Basic validation
-    if (!device.id || !device.name || !device.ipAddress || !device.location) {
+    if (!device.id || !device.name || !device.ipAddress || !device.location || !device.task) {
         alert('Please fill in all required fields');
         return;
     }
@@ -37,6 +38,7 @@ function addDevice() {
 function clearDeviceForm() {
     document.getElementById('deviceId').value = '';
     document.getElementById('deviceName').value = '';
+    document.getElementById('deviceTask').value = '';
     document.getElementById('deviceType').value = 'node';
     document.getElementById('deviceLocation').value = '';
     document.getElementById('deviceIp').value = '';
@@ -46,11 +48,13 @@ function groupDevicesIntoClusters() {
     const clusterBy = document.getElementById('clusterBy').value;
     
     return devices.reduce((acc, device) => {
-        const key = clusterBy === 'type' ? device.type : device.location;
+        const key = clusterBy === 'type' ? device.type : 
+                   clusterBy === 'location' ? device.location : 
+                   device.task;
         
         if (!acc[key]) {
             acc[key] = {
-                type: clusterBy === 'type' ? device.type : 'location',
+                type: clusterBy,
                 name: key,
                 devices: []
             };
@@ -59,6 +63,7 @@ function groupDevicesIntoClusters() {
             id: device.id,
             name: device.name,
             status: device.status,
+            task: device.task,
             location: device.location,
             ipAddress: device.ipAddress,
             lastPing: device.lastPing,
@@ -80,8 +85,8 @@ function updateVisualization() {
         clusterCard.className = 'cluster-card';
         clusterCard.innerHTML = `
             <div class="cluster-header">
-                <i class="fas fa-${clusterBy === 'type' ? getDeviceIcon(key) : 'map-marker-alt'}"></i> 
-                ${key.toUpperCase()} ${clusterBy === 'type' ? 'CLUSTER' : 'LOCATION'}
+                <i class="fas fa-${getClusterIcon(cluster.type, key)}"></i> 
+                ${key.toUpperCase()} ${getClusterLabel(cluster.type)}
             </div>
             ${cluster.devices.map(device => `
                 <div class="device-node">
@@ -90,7 +95,9 @@ function updateVisualization() {
                         <div>${device.name}</div>
                         <small>ID: ${device.id}</small>
                         <small>IP: ${device.ipAddress}</small>
-                        <small>${clusterBy === 'type' ? `Location: ${device.location}` : `Type: ${device.type}`}</small>
+                        <small>Type: ${device.type}</small>
+                        <small>Location: ${device.location}</small>
+                        <small>Task: ${device.task}</small>
                         <small>Last Ping: ${device.lastPing ? new Date(device.lastPing).toLocaleString() : 'Never'}</small>
                     </div>
                     <span class="device-status status-${device.status.toLowerCase()}">
@@ -195,3 +202,19 @@ document.getElementById('clusterBy').addEventListener('change', () => {
     updateVisualization();
     updateClusterList();
 });
+
+function getClusterIcon(clusterType, key) {
+    return {
+        type: getDeviceIcon(key),
+        location: 'map-marker-alt',
+        task: 'tasks'
+    }[clusterType];
+}
+
+function getClusterLabel(clusterType) {
+    return {
+        type: 'CLUSTER',
+        location: 'LOCATION',
+        task: 'TASK'
+    }[clusterType];
+}

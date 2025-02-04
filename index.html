@@ -23,10 +23,10 @@
             <div class="sidebar">
                 <div class="device-configuration">
                     <div class="sidebar-title">DEVICE MANAGEMENT</div>
-                    <!-- Replace the device-form section in index.html -->
                     <div class="device-form">
                         <input type="text" id="deviceId" placeholder="Device ID" required>
                         <input type="text" id="deviceName" placeholder="Device Name" required>
+                        <input type="text" id="deviceTask" placeholder="Task" required>
                         <select id="deviceType" required>
                             <option value="node">Node</option>
                             <option value="hub">Hub</option>
@@ -36,16 +36,14 @@
                         </select>
                         <input type="text" id="deviceLocation" placeholder="Location" required>
                         <input type="text" id="deviceIp" placeholder="IP Address" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$" required>
-                        
-                        <!-- Add clustering option -->
                         <div class="clustering-option">
-                            <label>Cluster By:</label>
+                            <label for="clusterBy">Cluster By:</label>
                             <select id="clusterBy">
                                 <option value="type">Device Type</option>
                                 <option value="location">Location</option>
+                                <option value="task">Task</option>
                             </select>
                         </div>
-                        
                         <button onclick="addDevice()" class="add-device-btn">
                             <i class="fas fa-plus"></i> Add Device
                         </button>
@@ -97,7 +95,7 @@
     </div>
     <script>
         const { ipcRenderer } = require('electron');
-        
+
         ipcRenderer.on('project-loaded', (event, projectData) => {
             devices = Object.values(projectData.clusters)
                           .flatMap(cluster => cluster.devices.map(device => ({
