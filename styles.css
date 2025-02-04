@@ -7,6 +7,8 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     height: 100vh;
+    background-color: #1e1e1e;
+    color: #cccccc;
 }
 
 .container {
@@ -24,6 +26,29 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid #444;
+}
+
+.top-bar button {
+    border: none;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    -webkit-app-region: no-drag;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.export-btn {
+    background-color: #007acc;
+    margin-right: 10px;
+}
+
+.deploy-btn {
+    background-color: #4CAF50;
 }
 
 .main-content {
@@ -38,6 +63,16 @@ body {
     color: #cccccc;
     display: flex;
     flex-direction: column;
+    border-right: 1px solid #333;
+}
+
+.sidebar-title {
+    padding: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    background-color: #2d2d2d;
+    border-bottom: 1px solid #333;
 }
 
 .device-form {
@@ -46,12 +81,22 @@ body {
     gap: 10px;
 }
 
-.device-form input, .device-form select {
-    padding: 8px;
+.device-form input, 
+.device-form select,
+.github-input {
+    padding: 8px 12px;
     background: #333;
     border: 1px solid #444;
     color: white;
     border-radius: 4px;
+    font-size: 13px;
+}
+
+.device-form input:focus, 
+.device-form select:focus,
+.github-input:focus {
+    outline: none;
+    border-color: #007acc;
 }
 
 .add-device-btn {
@@ -62,6 +107,21 @@ body {
     cursor: pointer;
     border-radius: 4px;
     margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.add-device-btn:hover {
+    background-color: #1f8ad2;
+}
+
+.editor-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .system-visualization {
@@ -77,6 +137,44 @@ body {
     gap: 20px;
 }
 
+.cluster-card {
+    background: #252526;
+    border: 1px solid #333;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.cluster-header {
+    background: #333;
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.device-node {
+    padding: 12px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.device-node:last-child {
+    border-bottom: none;
+}
+
+.device-node i {
+    color: #007acc;
+}
+
+.device-node small {
+    color: #888;
+    font-size: 12px;
+}
+
 .analytics-dashboard {
     flex: 1;
     background: #252526;
@@ -84,28 +182,39 @@ body {
     grid-template-columns: repeat(3, 1fr);
     gap: 15px;
     padding: 15px;
+    border-top: 1px solid #333;
 }
 
-.export-btn, .deploy-btn {
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    -webkit-app-region: no-drag;
+.analytics-card {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 15px;
 }
 
-.export-btn {
-    background-color: #007acc;
-    margin-right: 10px;
+.analytics-card h3 {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.deploy-btn {
-    background-color: #4CAF50;
+.analytics-card h3 i {
+    color: #007acc;
 }
 
 .github-section {
     padding: 15px;
     border-top: 1px solid #333;
     margin-top: auto;
+}
+
+.status-message {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #888;
 }
 
 .status-bar {
@@ -115,4 +224,17 @@ body {
     font-size: 12px;
     display: flex;
     justify-content: space-between;
+}
+
+.cluster-list {
+    padding-bottom: 15px;
+}
+
+.cluster-item {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #888;
 }
