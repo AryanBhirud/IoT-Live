@@ -2,53 +2,67 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>VS Code Clone</title>
+    <title>IoT Firmware Deployer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <div class="top-bar">Code</div>
+        <div class="top-bar">
+            <span>IoT Deployment Manager</span>
+            <button id="exportJson" class="export-btn">
+                <i class="fas fa-download"></i> Export Configuration
+            </button>
+        </div>
         <div class="main-content">
             <div class="sidebar">
-                <div class="file-explorer">
-                    <div class="sidebar-title">EXPLORER</div>
-                    <ul class="file-tree">
-                        <li class="folder">📁 src
-                            <ul>
-                                <li class="file">📄 index.html</li>
-                                <li class="file">📄 styles.css</li>
-                            </ul>
-                        </li>
-                        <li class="folder">📁 node_modules</li>
-                    </ul>
+                <div class="device-configuration">
+                    <div class="sidebar-title">DEVICE MANAGEMENT</div>
+                    <div class="device-form">
+                        <input type="text" id="deviceId" placeholder="Device ID">
+                        <input type="text" id="deviceName" placeholder="Device Name">
+                        <select id="deviceType">
+                            <option value="sensor">Sensor</option>
+                            <option value="actuator">Actuator</option>
+                            <option value="gateway">Gateway</option>
+                        </select>
+                        <button onclick="addDevice()" class="add-device-btn">
+                            <i class="fas fa-plus"></i> Add Device
+                        </button>
+                    </div>
+                    <div class="cluster-list">
+                        <div class="sidebar-title">CLUSTERS (AUTO-GROUPED)</div>
+                        <div id="clusterContainer"></div>
+                    </div>
                 </div>
             </div>
             <div class="editor-area">
-                <div class="editor-tabs">
-                    <div class="tab active">index.html</div>
-                    <div class="tab">styles.css</div>
+                <div class="system-visualization">
+                    <div class="cluster-grid" id="clusterGrid">
+                        <!-- Clusters will be dynamically added here -->
+                    </div>
                 </div>
-                <div class="editor-content">
-                    <div class="code-editor">
-                        <div class="line-numbers"></div>
-                        <pre class="code"><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;My App&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    Hello World
-&lt;/body&gt;
-&lt;/html&gt;</code></pre>
+                <div class="analytics-dashboard">
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-microchip"></i> Device Stats</h3>
+                        <div id="deviceStats"></div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-tachometer-alt"></i> Deployment Progress</h3>
+                        <div id="deploymentProgress"></div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-exclamation-triangle"></i> System Health</h3>
+                        <div id="systemHealth"></div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="status-bar">
-            <span class="git-branch">main*</span>
-            <span class="line-info">Ln 1, Col 1</span>
-            <span class="encoding">UTF-8</span>
+            <span class="connected-devices">Connected Devices: <span id="connectedCount">0</span></span>
+            <span class="update-status">Last Update: <span id="lastUpdate">Never</span></span>
         </div>
     </div>
+    <script src="app.js"></script>
 </body>
 </html>
