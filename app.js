@@ -1,20 +1,17 @@
-// Update the JavaScript code in app.js
+// app.js - Modified version without simulations
 
 let devices = [];
 
 function addDevice() {
-    const now = new Date();
-    
     const device = {
         id: document.getElementById('deviceId').value,
         name: document.getElementById('deviceName').value,
         type: document.getElementById('deviceType').value,
         location: document.getElementById('deviceLocation').value,
         ipAddress: document.getElementById('deviceIp').value,
-        status: document.getElementById('deviceStatus').value,
-        lastPing: now.toISOString(),
-        lastSeen: now.toLocaleString(),
-        firmware: '1.0.0'
+        status: 'unknown',     // Initial status is unknown until real data is received
+        lastPing: null,        // Will be updated by actual device communication
+        lastSeen: null         // Will be updated by actual device communication
     };
 
     // Basic validation
@@ -43,36 +40,58 @@ function clearDeviceForm() {
     document.getElementById('deviceType').value = 'node';
     document.getElementById('deviceLocation').value = '';
     document.getElementById('deviceIp').value = '';
-    document.getElementById('deviceStatus').value = 'online';
-    document.getElementById('lastPingDisplay').textContent = 'Never';
+}
+
+function groupDevicesIntoClusters() {
+    const clusterBy = document.getElementById('clusterBy').value;
+    
+    return devices.reduce((acc, device) => {
+        const key = clusterBy === 'type' ? device.type : device.location;
+        
+        if (!acc[key]) {
+            acc[key] = {
+                type: clusterBy === 'type' ? device.type : 'location',
+                name: key,
+                devices: []
+            };
+        }
+        acc[key].devices.push({
+            id: device.id,
+            name: device.name,
+            status: device.status,
+            location: device.location,
+            ipAddress: device.ipAddress,
+            lastPing: device.lastPing,
+            type: device.type
+        });
+        return acc;
+    }, {});
 }
 
 function updateVisualization() {
     const clusterGrid = document.getElementById('clusterGrid');
     clusterGrid.innerHTML = '';
     
-    const clusters = devices.reduce((acc, device) => {
-        if (!acc[device.type]) acc[device.type] = [];
-        acc[device.type].push(device);
-        return acc;
-    }, {});
+    const clusters = groupDevicesIntoClusters();
+    const clusterBy = document.getElementById('clusterBy').value;
 
-    for (const [type, devices] of Object.entries(clusters)) {
+    for (const [key, cluster] of Object.entries(clusters)) {
         const clusterCard = document.createElement('div');
         clusterCard.className = 'cluster-card';
         clusterCard.innerHTML = `
             <div class="cluster-header">
-                <i class="fas fa-${getDeviceIcon(type)}"></i> ${type.toUpperCase()} CLUSTER
+                <i class="fas fa-${clusterBy === 'type' ? getDeviceIcon(key) : 'map-marker-alt'}"></i> 
+                ${key.toUpperCase()} ${clusterBy === 'type' ? 'CLUSTER' : 'LOCATION'}
             </div>
-            ${devices.map(device => `
+            ${cluster.devices.map(device => `
                 <div class="device-node">
-                    <i class="fas fa-${getDeviceIcon(type)}"></i>
+                    <i class="fas fa-${getDeviceIcon(device.type)}"></i>
                     <div class="device-node-details">
                         <div>${device.name}</div>
                         <small>ID: ${device.id}</small>
                         <small>IP: ${device.ipAddress}</small>
-                        <small>Location: ${device.location}</small>
-                        <small>Last Ping: ${new Date(device.lastPing).toLocaleString()}</small>
+                        <small>${clusterBy === 'type' ? `Location: ${device.location}` : `Type: ${device.type}`}</small>
+                        <small>Last Ping: ${device.lastPing ? new Date(device.lastPing).toLocaleString() : 'Never'}</small>
                     </div>
                     <span class="device-status status-${device.status.toLowerCase()}">
                         ${device.status}
@@ -143,6 +162,7 @@ function countDeviceStatuses() {
     }, {});
 }
 
+// Export configuration
 document.getElementById('exportJson').addEventListener('click', () => {
     const data = {
         timestamp: new Date().toISOString(),
@@ -160,27 +180,7 @@ document.getElementById('exportJson').addEventListener('click', () => {
     a.click();
 });
 
-function groupDevicesIntoClusters() {
-    return devices.reduce((acc, device) => {
-        if (!acc[device.type]) {
-            acc[device.type] = {
-                type: device.type,
-                devices: [],
-                firmware: '1.0.0'
-            };
-        }
-        acc[device.type].devices.push({
-            id: device.id,
-            name: device.name,
-            status: device.status,
-            location: device.location,
-            ipAddress: device.ipAddress,
-            lastPing: device.lastPing
-        });
-        return acc;
-    }, {});
-}
-
+// Deploy button handler
 document.getElementById('deployBtn').addEventListener('click', () => {
     const clusters = groupDevicesIntoClusters();
     document.getElementById('deploymentProgress').innerHTML = `
@@ -188,4 +188,10 @@ document.getElementById('deployBtn').addEventListener('click', () => {
             Configuration ready for deployment to ${devices.length} devices
         </div>
     `;
+});
+
+// Cluster type change handler
+document.getElementById('clusterBy').addEventListener('change', () => {
+    updateVisualization();
+    updateClusterList();
 });
