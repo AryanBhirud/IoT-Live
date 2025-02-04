@@ -24,7 +24,7 @@ function createWindow() {
               properties: ['openFile'],
               filters: [{ name: 'JSON Files', extensions: ['json'] }]
             });
-            
+
             if (filePaths.length > 0) {
               const data = fs.readFileSync(filePaths[0], 'utf-8');
               win.webContents.send('project-loaded', JSON.parse(data));
