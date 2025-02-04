@@ -11,7 +11,10 @@
         <div class="top-bar">
             <span>IoT Deployment Manager</span>
             <button id="exportJson" class="export-btn">
-                <i class="fas fa-download"></i> Export Configuration
+                <i class="fas fa-download"></i> Export
+            </button>
+            <button id="deployBtn" class="deploy-btn">
+                <i class="fas fa-rocket"></i> Deploy
             </button>
         </div>
         <div class="main-content">
@@ -35,12 +38,18 @@
                         <div id="clusterContainer"></div>
                     </div>
                 </div>
+                <div class="github-section">
+                    <div class="sidebar-title">GITHUB INTEGRATION</div>
+                    <input type="text" id="githubRepo" class="github-input" placeholder="Repository URL">
+                    <button onclick="connectGithub()" class="add-device-btn">
+                        <i class="fab fa-github"></i> Connect
+                    </button>
+                    <div id="githubStatus" class="status-message"></div>
+                </div>
             </div>
             <div class="editor-area">
                 <div class="system-visualization">
-                    <div class="cluster-grid" id="clusterGrid">
-                        <!-- Clusters will be dynamically added here -->
-                    </div>
+                    <div class="cluster-grid" id="clusterGrid"></div>
                 </div>
                 <div class="analytics-dashboard">
                     <div class="analytics-card">
@@ -63,6 +72,20 @@
             <span class="update-status">Last Update: <span id="lastUpdate">Never</span></span>
         </div>
     </div>
+    <script>
+        const { ipcRenderer } = require('electron');
+        
+        ipcRenderer.on('project-loaded', (event, projectData) => {
+            devices = Object.values(projectData.clusters)
+                          .flatMap(cluster => cluster.devices.map(device => ({
+                              ...device,
+                              type: cluster.type
+                          })));
+            updateVisualization();
+            updateClusterList();
+            updateAnalytics();
+        });
+    </script>
     <script src="app.js"></script>
 </body>
 </html>
